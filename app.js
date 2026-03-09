@@ -341,6 +341,126 @@ function decodeBase64Utf8(encoded) {
   return new TextDecoder('utf-8').decode(bytes);
 }
 
+function renderInlineMarkdown(text) {
+  let html = escapeHtml(text);
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  return html;
+}
+
+function renderMarkdownList(lines) {
+  let html = '';
+  const stack = [];
+  let prevLevel = -1;
+
+  for (let i = 0; i < lines.length; i++) {
+    const match = lines[i].match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
+    if (!match) continue;
+
+    const level = Math.floor(match[1].length / 2);
+    const type = /\d+\./.test(match[2]) ? 'ol' : 'ul';
+    const content = renderInlineMarkdown(match[3]);
+
+    if (level > prevLevel) {
+      for (let l = prevLevel + 1; l <= level; l++) {
+        html += '<' + type + ' class="md-list">';
+        stack.push(type);
+      }
+    } else if (level < prevLevel) {
+      html += '</li>';
+      for (let l = prevLevel; l > level; l--) {
+        html += '</' + stack.pop() + '></li>';
+      }
+    } else if (prevLevel >= 0) {
+      html += '</li>';
+    }
+
+    html += '<li>' + content;
+    prevLevel = level;
+  }
+
+  if (prevLevel >= 0) {
+    html += '</li>';
+  }
+  while (stack.length) {
+    html += '</' + stack.pop() + '>';
+  }
+
+  return html;
+}
+
+function renderMarkdownResource(markdownText) {
+  const markdown = markdownText
+    .replace(/^\s*<div[^>]*>\s*/i, '')
+    .replace(/\s*<\/div>\s*$/i, '')
+    .replace(/\r\n/g, '\n')
+    .trim();
+
+  const lines = markdown.split('\n');
+  let html = '';
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (!trimmed) {
+      i++;
+      continue;
+    }
+
+    if (trimmed.startsWith('```')) {
+      const codeLines = [];
+      i++;
+      while (i < lines.length && !lines[i].trim().startsWith('```')) {
+        codeLines.push(lines[i]);
+        i++;
+      }
+      html += '<pre class="md-code"><code>' + escapeHtml(codeLines.join('\n')) + '</code></pre>';
+      i++;
+      continue;
+    }
+
+    if (/^#{1,3}\s+/.test(trimmed)) {
+      const level = trimmed.match(/^#+/)[0].length;
+      const text = trimmed.replace(/^#{1,3}\s+/, '');
+      html += '<h' + level + ' class="md-h' + level + '">' + renderInlineMarkdown(text) + '</h' + level + '>';
+      i++;
+      continue;
+    }
+
+    if (/^>\s+/.test(trimmed)) {
+      const quoteLines = [];
+      while (i < lines.length && /^>\s+/.test(lines[i].trim())) {
+        quoteLines.push(lines[i].trim().replace(/^>\s+/, ''));
+        i++;
+      }
+      html += '<blockquote class="md-quote">' + quoteLines.map(renderInlineMarkdown).join('<br />') + '</blockquote>';
+      continue;
+    }
+
+    if (/^(\s*)([-*]|\d+\.)\s+/.test(line)) {
+      const listLines = [];
+      while (i < lines.length && /^(\s*)([-*]|\d+\.)\s+/.test(lines[i])) {
+        listLines.push(lines[i]);
+        i++;
+      }
+      html += renderMarkdownList(listLines);
+      continue;
+    }
+
+    const paragraphLines = [];
+    while (i < lines.length && lines[i].trim() && !/^#{1,3}\s+/.test(lines[i].trim()) && !/^>\s+/.test(lines[i].trim()) && !/^(\s*)([-*]|\d+\.)\s+/.test(lines[i]) && !lines[i].trim().startsWith('```')) {
+      paragraphLines.push(lines[i].trim());
+      i++;
+    }
+    html += '<p class="md-p">' + paragraphLines.map(renderInlineMarkdown).join('<br />') + '</p>';
+  }
+
+  return html;
+}
+
 /* ===================================================================
    WELCOME SCREEN
    =================================================================== */
@@ -356,7 +476,6 @@ function renderWelcome() {
       ? 'העתיקו את הפרומפט למודל השפה המועדף עליכם'
       : 'README-v2: מידע נוסף על הפיילוט';
     const resourceText = isPromptOpen ? WELCOME_RESOURCES.prompt : WELCOME_RESOURCES.readme;
-    const resourceDir = isPromptOpen ? 'ltr' : 'rtl';
 
     resourcePanel = `
       <section class="resource-panel">
@@ -370,11 +489,17 @@ function renderWelcome() {
             <button class="btn btn-secondary btn-small" data-action="close-welcome-resource">סגירה</button>
           </div>
         </div>
-        <textarea
-          class="resource-textbox ${isPromptOpen ? 'resource-textbox-ltr' : 'resource-textbox-rtl'}"
-          dir="${resourceDir}"
-          readonly
-        >${escapeHtml(resourceText)}</textarea>
+        ${isPromptOpen ? `
+          <textarea
+            class="resource-textbox resource-textbox-ltr"
+            dir="ltr"
+            readonly
+          >${escapeHtml(resourceText)}</textarea>
+        ` : `
+          <div class="resource-markdown" dir="rtl">
+            ${renderMarkdownResource(resourceText)}
+          </div>
+        `}
       </section>
     `;
   }

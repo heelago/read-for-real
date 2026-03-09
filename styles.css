@@ -338,6 +338,89 @@ input:focus {
   line-height: 1.55;
 }
 
+.resource-markdown {
+  border: 1px solid #d7cfbf;
+  border-radius: 12px;
+  background: #fffefb;
+  color: var(--text-bark);
+  padding: 18px 20px;
+  line-height: 1.75;
+}
+
+.resource-markdown a {
+  color: #3f5f7d;
+}
+
+.resource-markdown code {
+  background: #f4efe5;
+  border-radius: 6px;
+  padding: 1px 5px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 0.95em;
+}
+
+.resource-markdown pre {
+  background: #f4efe5;
+  border: 1px solid #ddd3c1;
+  border-radius: 10px;
+  padding: 14px;
+  overflow-x: auto;
+  direction: ltr;
+  text-align: left;
+}
+
+.resource-markdown pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.resource-markdown h1,
+.resource-markdown h2,
+.resource-markdown h3 {
+  margin: 0 0 10px;
+  font-family: 'Frank Ruhl Libre', serif;
+  line-height: 1.25;
+}
+
+.resource-markdown h1 {
+  font-size: 34px;
+}
+
+.resource-markdown h2 {
+  font-size: 24px;
+  margin-top: 24px;
+}
+
+.resource-markdown h3 {
+  font-size: 18px;
+  margin-top: 18px;
+}
+
+.resource-markdown p,
+.resource-markdown blockquote,
+.resource-markdown ul,
+.resource-markdown ol,
+.resource-markdown pre {
+  margin: 0 0 14px;
+}
+
+.resource-markdown ul,
+.resource-markdown ol {
+  padding-right: 22px;
+}
+
+.resource-markdown li {
+  margin-bottom: 6px;
+}
+
+.resource-markdown blockquote {
+  margin-right: 0;
+  padding: 10px 14px;
+  border-right: 3px solid var(--color-evidence);
+  background: #f7f2e8;
+  border-radius: 10px;
+}
+
 /* Instructions */
 .instructions-grid {
   display: grid;
