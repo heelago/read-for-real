@@ -28,13 +28,17 @@
 
 ## כלי 2: מה הטענה כאן? — Claim Highlighter
 
-כלי תרגול לזיהוי טענות, ראיות, והסתייגויות בפסקאות ממאמר אקדמי.
+כלי תרגול ממוקד יותר לזיהוי טענות, ראיות, והסתייגויות בפסקאות ממאמר אקדמי.
+
+זה לא "מוצר אחר לגמרי", אלא אח קטן של `Read for Real`: הוא שומר על החיכוך, התרגום, המשוב והדוח, אבל מתמקד בעיקר בעבודה על הזיהוי הטיעוני ולא בזרימה המלאה של קריאה רב-חלקית.
 
 - **סימון טקסט** — הסטודנט מסמן קטעים ומשייך אותם לקטגוריה: טענה, ראיה, או הסתייגות
 - **משוב מיידי** — אחרי כל פסקה, השוואה מול מפתח תשובות מוכן מראש
 - **תרגום מובנה** — תרגום לעברית לכל פסקה, בלחיצה
 - **חסימת העתקה** — אי אפשר להעתיק את הטקסט ללוח
 - **דוח להורדה** — סיכום עם ציונים לפי קטגוריה
+
+אם רוצים, אפשר לנסח גם לגרסה הזאת פרומפט עם רכיב רפלקטיבי או סוקרטי קצר. הפיילוט הנוכחי ב-`claim-highlighter.html` מתמקד כרגע בזיהוי, משוב ודוח.
 
 > הפיילוט בנוי סביב המאמר "Cut the bullshit" של Flenady & Sparrow (2025) — מאמר פילוסופי שטוען שמערכות GenAI הן חסרות אחריות אפיסטמית.
 
@@ -44,6 +48,10 @@
 
 ### אופציה 1: להשתמש בפיילוט כמו שהוא
 פתחו את הקובץ הרלוונטי בדפדפן או העלו אותו לאתר.
+
+- `index.html` — v2 הפעיל של `Read for Real`
+- `read-for-real-v1.html` — גרסת v1 הישנה של `Read for Real`
+- `claim-highlighter.html` — פיילוט ה-Claim Highlighter
 
 ### אופציה 2: לבנות גרסה למאמר שלכם
 1. פתחו מודל שפה (Claude, ChatGPT, Gemini — מה שעובד לכם)
@@ -63,12 +71,18 @@
 ## Repo structure
 
 ```
+index.html                ← Read for Real v2 (current static app)
+read-for-real-v1.html     ← dedicated entrypoint for the older v1 build
+assets/                   ← compiled assets used by v1
+app.js                    ← v2 app logic
+styles.css                ← v2 styles
+_article_data.js          ← v2 article data, tag key, questions, and quiz
 read-for-real.md          ← prompt + template for Socratic reading tool
+read-for-real-v2-prompt.md← prompt for generating the current v2-style pilot
 claim-highlighter.md      ← prompt + template for claim highlighting tool
 claim-highlighter.html    ← pilot: Flenady & Sparrow (2025) claim highlighter
+README-v2.md              ← implementation notes for v2
 README.md                 ← you are here
-index.html                ← Read for Real built app
-assets/                   ← Read for Real built assets
 ```
 
 <div dir="rtl">
